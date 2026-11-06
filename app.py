@@ -5,7 +5,7 @@ import joblib
 
 st.set_page_config(page_title="Breast Cancer Predictor", layout="wide")
 
-st.title("⚕️ Breast Cancer Diagnosis Prediction App")
+st.title("🩺 Breast Cancer Diagnosis Prediction App")
 st.write("""
 This app uses a Support Vector Machine (SVC) classifier trained on Principal Components
 to predict whether a breast mass is **Malignant (M)** or **Benign (B)**.
@@ -22,7 +22,7 @@ def load_assets():
 try:
     scaler, pca, model = load_assets()
 except Exception as e:
-    st.error(f"Error loading models: {e}. Please make sure 'scaler.sav', 'pca_transformer.sav', and 'svc_model.sav' are in the same directory.")
+    st.error(f"Error loading models: {e}. Please make sure you have executed the previous cells to save the models.")
     st.stop()
 
 # Feature names matching the original dataset
@@ -40,6 +40,7 @@ feature_names = [
 
 st.sidebar.header("🔬 Input Patient Clinical Metrics")
 
+# Group inputs dynamically into columns for a better UI layout
 input_data = {}
 cols = st.columns(3)
 for idx, col in enumerate(feature_names):
@@ -48,13 +49,18 @@ for idx, col in enumerate(feature_names):
     input_data[col] = val
 
 if st.button("Run Diagnostic Prediction", type="primary"):
+    # Convert input to DataFrame
     input_df = pd.DataFrame([input_data])
+
+    # Preprocess inputs using saved Pipeline steps
     input_scaled = scaler.transform(input_df)
     input_pca = pca.transform(input_scaled)
+
+    # Predict
     prediction = model.predict(input_pca)[0]
 
     st.subheader("Prediction Results")
-    if prediction == 'M':
+    if prediction == 1:
         st.error("🚨 **Diagnosis Prediction: Malignant (M)**")
         st.write("The model suggests a high likelihood that the tumor is malignant.")
     else:
